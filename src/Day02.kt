@@ -11,12 +11,12 @@ fun main() {
     fun calculateScore(line: String): Int {
         val them = scores[line.substring(0,1)]!!
         val us = scores[line.substring(2,3)]!!
-        return when {
-            them == us -> 3 + us
-            them == 3 && us == 1 -> 6 + us
-            them == 1 && us == 3 -> 0 + us
-            them + 1 == us -> 6 + us
-            them - 1 == us -> 0 + us
+        return us + when {
+            them == us -> 3
+            them == 3 && us == 1 -> 6
+            them == 1 && us == 3 -> 0
+            them + 1 == us -> 6
+            them - 1 == us -> 0
             else -> 0
         }
     }
