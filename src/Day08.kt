@@ -5,18 +5,21 @@ fun main() {
         }
     }
 
-    fun processRow(row: List<Int>, vis: IntArray) {
+    fun List<List<Int>>.row(idx: Int) = this[idx]
+    fun List<List<Int>>.col(idx: Int) = map { it[idx] }
+
+    fun findVisible(row: List<Int>, isVisible: (Int) -> Unit) {
         var leftMax = Int.MIN_VALUE
         var rightMax = Int.MIN_VALUE
         var left = 0
         var right = row.lastIndex
         while (right >= 0) {
             if (row[left] > leftMax) {
-                vis[left] = 1
+                isVisible(left)
                 leftMax = row[left]
             }
             if (row[right] > rightMax) {
-                vis[right] = 1
+                isVisible(right)
                 rightMax = row[right]
             }
             left += 1
@@ -24,32 +27,17 @@ fun main() {
         }
     }
 
-    fun processColumn(grid: List<List<Int>>, vis: Array<IntArray>, idx: Int) {
-        var topMax = Int.MIN_VALUE
-        var bottomMax = Int.MIN_VALUE
-        var top = 0
-        var bottom = grid.lastIndex
-        while (bottom >= 0) {
-            if(grid[top][idx] > topMax) {
-                vis[top][idx] = 1
-                topMax = grid[top][idx]
-            }
-            if(grid[bottom][idx] > bottomMax) {
-                vis[bottom][idx] = 1
-                bottomMax = grid[bottom][idx]
-            }
-            top += 1
-            bottom -= 1
-        }
-    }
-    
     fun part1(input: List<String>): Int {
         val grid = makeGrid(input)
         val lastRow = grid[0].lastIndex
         val lastCol = grid.lastIndex
         val visibility = Array(lastCol + 1) { IntArray(lastRow + 1) { 0 } }
-        (0..lastRow).forEach { idx -> processRow(grid[idx], visibility[idx]) }
-        (1..lastCol - 1).forEach { idx -> processColumn(grid, visibility, idx) }
+        (0..lastRow).forEach { idx -> 
+            findVisible(grid.row(idx)) { col -> visibility[idx][col] = 1 }
+        }
+        (1..lastCol - 1).forEach { idx -> 
+            findVisible(grid.col(idx)) { row -> visibility[row][idx] = 1 }
+        }
         return visibility
             .map { it.fold(0) { acc, i -> acc + i } }
             .fold(0) { acc, i -> acc + i }
@@ -70,7 +58,7 @@ fun main() {
     }
 
     fun viewingScore(grid: List<List<Int>>, row: Int, col: Int): Int {
-        return score(grid[col], row) * score(grid.map { it[row] }, col)
+        return score(grid.row(col), row) * score(grid.col(row), col)
     }
 
     fun part2(input: List<String>): Int {
